@@ -20,7 +20,9 @@ resource "azurerm_network_interface" "ip_mikrotik" {
   name                  = var.azurerm_network_interface_name
   location              = var.location
   resource_group_name   = var.resource_group
-  ip_forwarding_enabled = true
+  
+  #ip_forwarding_enabled - (Optional) Should IP Forwarding be enabled? Defaults to false.
+  #ip_forwarding_enabled = true
 
   ip_configuration {
     name                          = var.ip_configuration_name
