@@ -1,4 +1,4 @@
-name: 05 Deploy MikroTik CHR to Azure (05_Deploy_CHR.yml)
+name: 05 Deploy CHR to Azure (05_Deploy_CHR.yml)
 
 on:
   workflow_dispatch:
@@ -35,25 +35,25 @@ jobs:
         with:
           terraform_version: 1.7.2
 
-      - name: Initialize Terraform
+      - name: Terraform Init
         run: terraform -chdir=terraform init
 
       - name: Terraform Plan
         run: |
           terraform -chdir=terraform plan \
-            -var "location=${{ env.LOCATION }}" \
-            -var "resource_group=${{ env.RESOURCE_GROUP }}" \
-            -var "storage_account=${{ env.STORAGE_ACCOUNT }}" \
-            -var "container_name=${{ env.CONTAINER_NAME }}" \
-            -var "vhd_name=${{ env.VHD_NAME }}" \
-            -var "sp_name=${{ env.SP_NAME }}"
+            -var="location=${{ env.LOCATION }}" \
+            -var="resource_group=${{ env.RESOURCE_GROUP }}" \
+            -var="storage_account=${{ env.STORAGE_ACCOUNT }}" \
+            -var="container_name=${{ env.CONTAINER_NAME }}" \
+            -var="vhd_name=${{ env.VHD_NAME }}" \
+            -var="sp_name=${{ env.SP_NAME }}"
 
       - name: Terraform Apply
         run: |
           terraform -chdir=terraform apply -auto-approve \
-            -var "location=${{ env.LOCATION }}" \
-            -var "resource_group=${{ env.RESOURCE_GROUP }}" \
-            -var "storage_account=${{ env.STORAGE_ACCOUNT }}" \
-            -var "container_name=${{ env.CONTAINER_NAME }}" \
-            -var "vhd_name=${{ env.VHD_NAME }}" \
-            -var "sp_name=${{ env.SP_NAME }}"
+            -var="location=${{ env.LOCATION }}" \
+            -var="resource_group=${{ env.RESOURCE_GROUP }}" \
+            -var="storage_account=${{ env.STORAGE_ACCOUNT }}" \
+            -var="container_name=${{ env.CONTAINER_NAME }}" \
+            -var="vhd_name=${{ env.VHD_NAME }}" \
+            -var="sp_name=${{ env.SP_NAME }}"
