@@ -22,6 +22,7 @@ jobs:
           echo "RESOURCE_GROUP=$(echo $PARAMS | jq -r .resource_group)" >> $GITHUB_ENV
           echo "STORAGE_ACCOUNT=$(echo $PARAMS | jq -r .storage_account)" >> $GITHUB_ENV
           echo "CONTAINER_NAME=$(echo $PARAMS | jq -r .container_name)" >> $GITHUB_ENV
+          echo "CONTAINER_NAME_TF=$(echo $PARAMS | jq -r .container_name_tf)" >> $GITHUB_ENV
           echo "SP_NAME=$(echo $PARAMS | jq -r .sp_name)" >> $GITHUB_ENV
           echo "IMAGE_FILE=$(echo $PARAMS | jq -r .image_file)" >> $GITHUB_ENV
           echo "VHD_NAME=$(echo $PARAMS | jq -r .vhd_name)" >> $GITHUB_ENV
@@ -31,13 +32,16 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS_ADMIN }}
 
-      - name: Create Storage Account and Blob Container
+      - name: Create Storage Account and Blob Containers
         run: |
           az storage account show --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP >/dev/null 2>&1 || \
           az storage account create --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --location $LOCATION --sku Standard_LRS
 
           az storage container show --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT >/dev/null 2>&1 || \
           az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT
+
+          az storage container show --name $CONTAINER_NAME_TF --account-name $STORAGE_ACCOUNT >/dev/null 2>&1 || \
+          az storage container create --name $CONTAINER_NAME_TF --account-name $STORAGE_ACCOUNT
 
       - name: Unzip CHR Image
         run: unzip $IMAGE_FILE -d prep-chr-image
@@ -69,10 +73,9 @@ jobs:
             backend "azurerm" {
               resource_group_name  = "$RESOURCE_GROUP"
               storage_account_name = "$STORAGE_ACCOUNT"
-              container_name       = "$CONTAINER_NAME"
+              container_name       = "$CONTAINER_NAME_TF"
               key                  = "terraform.tfstate"
             }
           }
           EOF
           cat terraform/backend.tf
-

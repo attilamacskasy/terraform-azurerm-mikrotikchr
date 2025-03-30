@@ -3,30 +3,23 @@
     "az_region": "westeu",
     "environment": "poc",
     "project": "lab",
-
     "resource_group": "rg-hub-net-shared-001",
     "storage_account": "mikrotikchrstorage01",
     "container_name": "vhds",
+    "container_name_tf": "terraform",
     "sp_name": "sp-terraform-chr",
     "image_file": "prep-chr-image/chr-7.18.2.vhd.zip",
     "vhd_name": "chr-7.18.2.vhd",
-
-
     "vnet_name": "vnet-hub-westeu-001",
     "subnet_name": "snet-chr-westeu-001",
     "azurerm_image_name": "img-vm-mikrotik-chr-7-18-2-vhd",
-       
     "azurerm_network_interface_name": "vmnic-mikrotik-chr",
     "ip_configuration_name": "ip-mikrotik-chr",
     "azurerm_virtual_machine_name": "vm-mikrotik-chr",
     "storage_os_disk_name":         "vm-mikrotik-chr_disk1",
-
     "storage_os_disk_managed_disk_type":         "StandardSSD_LRS",
-
     "azurerm_route_table_name":         "rt-mikrotik-chr",
-
     "azurerm_virtual_machine_vm_size": "Standard_B1s",
-
     "mikrotik_ip": "192.168.88.1",
     "mikrotik_user": "admin",
     "mikrotik_password": "your_password",
