@@ -1,6 +1,6 @@
 # get parameters from deploy-params.json
 locals {
-  params = jsondecode(file("${path.module}/deploy-params.json"))
+  params = jsondecode(file("${path.module}/../../deploy-params.json"))
 }
 
 module "vnet_hub" {
