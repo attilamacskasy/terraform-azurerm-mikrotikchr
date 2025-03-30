@@ -30,13 +30,13 @@ jobs:
           terraform_version: 1.7.2
 
       - name: Terraform Init
-        working-directory: terraform
+        working-directory: terraform/azure
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: terraform
+        working-directory: terraform/azure
         run: terraform plan
 
       - name: Terraform Apply
-        working-directory: terraform
+        working-directory: terraform/azure
         run: terraform apply -auto-approve
