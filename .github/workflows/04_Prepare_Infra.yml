@@ -32,14 +32,18 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS_ADMIN }}
 
-      - name: Create Storage Account and Blob Containers
+      - name: Create Storage Account
         run: |
           az storage account show --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP >/dev/null 2>&1 || \
           az storage account create --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --location $LOCATION --sku Standard_LRS
 
+      - name: Create Blob Container for VHDs
+        run: |
           az storage container show --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT >/dev/null 2>&1 || \
           az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT
 
+      - name: Create Blob Container for Terraform State
+        run: |
           az storage container show --name $CONTAINER_NAME_TF --account-name $STORAGE_ACCOUNT >/dev/null 2>&1 || \
           az storage container create --name $CONTAINER_NAME_TF --account-name $STORAGE_ACCOUNT
 
