@@ -1,4 +1,4 @@
-name: Deploy MikroTik CHR to Azure (05_Deploy_CHR.yml)
+name: 05 Deploy MikroTik CHR to Azure (05_Deploy_CHR.yml)
 
 on:
   workflow_dispatch:
