@@ -17,11 +17,7 @@ jobs:
       - name: Load parameters from deploy-params.json
         id: params
         run: |
-          PARAMS=$(cat deploy-params.json)
-          for key in $(jq -r 'keys[]' <<< "$PARAMS"); do
-            value=$(jq -r ".[$key]" <<< "$PARAMS")
-            echo "$key=$value" >> $GITHUB_ENV
-          done
+          jq -r 'to_entries[] | "\(.key)=\(.value)"' deploy-params.json >> $GITHUB_ENV
 
       - name: Authenticate with Azure
         uses: azure/login@v1
