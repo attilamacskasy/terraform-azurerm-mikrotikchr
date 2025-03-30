@@ -1,4 +1,4 @@
-name: Prepare Azure Infra for CHR Deployment
+name: 04 Prepare Azure Infra for CHR Deployment (04_Prepare_Infra.yml)
 
 on:
   workflow_dispatch:
@@ -55,6 +55,11 @@ jobs:
             --role "Storage Blob Data Contributor" \
             --scope $scope || echo "Role assignment may already exist. Continuing."
 
+      - name: Wait for role propagation
+        run: |
+          echo "Waiting 30 seconds to ensure role assignments propagate..."
+          sleep 30
+
       - name: Upload VHD to Azure Blob
         run: |
           az storage blob upload \
@@ -96,3 +101,4 @@ jobs:
           }
           EOF
           cat terraform/backend.tf
+          
