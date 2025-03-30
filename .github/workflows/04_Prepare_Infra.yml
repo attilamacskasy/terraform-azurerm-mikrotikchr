@@ -1,4 +1,4 @@
-name: Prepare Azure Infra for CHR Deployment
+name: Prepare Azure Infra for CHR Deployment (04_Prepare_Infra.yml)
 
 on:
   workflow_dispatch:
