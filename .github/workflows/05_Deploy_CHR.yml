@@ -18,12 +18,10 @@ jobs:
         id: params
         run: |
           PARAMS=$(cat deploy-params.json)
-          echo "LOCATION=$(echo $PARAMS | jq -r .location)" >> $GITHUB_ENV
-          echo "RESOURCE_GROUP=$(echo $PARAMS | jq -r .resource_group)" >> $GITHUB_ENV
-          echo "STORAGE_ACCOUNT=$(echo $PARAMS | jq -r .storage_account)" >> $GITHUB_ENV
-          echo "CONTAINER_NAME=$(echo $PARAMS | jq -r .container_name)" >> $GITHUB_ENV
-          echo "VHD_NAME=$(echo $PARAMS | jq -r .vhd_name)" >> $GITHUB_ENV
-          echo "SP_NAME=$(echo $PARAMS | jq -r .sp_name)" >> $GITHUB_ENV
+          for key in $(jq -r 'keys[]' <<< "$PARAMS"); do
+            value=$(jq -r ".[$key]" <<< "$PARAMS")
+            echo "$key=$value" >> $GITHUB_ENV
+          done
 
       - name: Authenticate with Azure
         uses: azure/login@v1
@@ -39,21 +37,7 @@ jobs:
         run: terraform -chdir=terraform init
 
       - name: Terraform Plan
-        run: |
-          terraform -chdir=terraform plan \
-            -var="location=${{ env.LOCATION }}" \
-            -var="resource_group=${{ env.RESOURCE_GROUP }}" \
-            -var="storage_account=${{ env.STORAGE_ACCOUNT }}" \
-            -var="container_name=${{ env.CONTAINER_NAME }}" \
-            -var="vhd_name=${{ env.VHD_NAME }}" \
-            -var="sp_name=${{ env.SP_NAME }}"
+        run: terraform -chdir=terraform plan
 
       - name: Terraform Apply
-        run: |
-          terraform -chdir=terraform apply -auto-approve \
-            -var="location=${{ env.LOCATION }}" \
-            -var="resource_group=${{ env.RESOURCE_GROUP }}" \
-            -var="storage_account=${{ env.STORAGE_ACCOUNT }}" \
-            -var="container_name=${{ env.CONTAINER_NAME }}" \
-            -var="vhd_name=${{ env.VHD_NAME }}" \
-            -var="sp_name=${{ env.SP_NAME }}"
+        run: terraform -chdir=terraform apply -auto-approve

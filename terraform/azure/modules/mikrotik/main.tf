@@ -1,65 +1,44 @@
-resource "azurerm_storage_account" "sa_mikrotik" {
-  name                     = "samikrotik${var.project}${var.environment}${var.az_region}"
-  resource_group_name      = var.resource_group
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-resource "azurerm_storage_container" "sa_container_mikrotik" {
-  name                  = "sa-container-mikrotik-${var.project}-${var.environment}-${var.az_region}"
-  storage_account_name  = azurerm_storage_account.sa_mikrotik.name
-  container_access_type = "private"
-}
-
-resource "azurerm_storage_blob" "sa_blob_mikrotik" {
-  name                   = "mikrotik-image.vhd"
-  storage_account_name   = azurerm_storage_account.sa_mikrotik.name
-  storage_container_name = azurerm_storage_container.sa_container_mikrotik.name
-  type                   = "Page"
-  source                 = "../mikrotik/chr-7.10rc6.vhd"
-}
-
 resource "azurerm_image" "image_mikrotik" {
-  name                = "mikrotik-image-${var.project}-${var.environment}-${var.az_region}"
-  hyper_v_generation  = "V1"
+  hyper_v_generation  = "V2"
+  name                = var.azurerm_image_name
   location            = var.location
   resource_group_name = var.resource_group
+  tags                = {}
   zone_resilient      = false
-  os_disk {
-    blob_uri = azurerm_storage_blob.sa_blob_mikrotik.url
-    caching  = "ReadWrite"
-    os_state = "Generalized"
-    os_type  = "Linux"
-    size_gb  = 10
-  }
 
+  os_disk {
+    storage_type  = "Standard_LRS"
+    blob_uri      = "https://mikrotikchrstorage01.blob.core.windows.net/vhds/chr-7.18.2.vhd"
+    caching       = "ReadWrite"
+    os_state      = "Generalized"
+    os_type       = "Linux"
+    size_gb       = 1
+  }
 }
 
 resource "azurerm_network_interface" "ip_mikrotik" {
-  name                 = "ip-mikrotik-${var.project}-${var.environment}-${var.az_region}"
-  location             = var.location
-  resource_group_name  = var.resource_group
-  enable_ip_forwarding = true
+  name                  = var.azurerm_network_interface_name
+  location              = var.location
+  resource_group_name   = var.resource_group
+  ip_forwarding_enabled = true
 
   ip_configuration {
-    name                          = "ip-mikrotik-${var.project}-${var.environment}-${var.az_region}"
+    name                          = var.ip_configuration_name
     subnet_id                     = var.az_subnet_id
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Dynamic" # or Static 
 
   }
 }
 
 resource "azurerm_virtual_machine" "vm_mikrotik" {
   location              = var.location
-  name                  = "vm-chr-${var.project}-${var.environment}-${var.az_region}"
+  name                  = var.azurerm_virtual_machine_name
   network_interface_ids = [azurerm_network_interface.ip_mikrotik.id]
   resource_group_name   = var.resource_group
-  vm_size               = "Standard_B1s"
+  vm_size               = var.azurerm_virtual_machine_vm_size
   zones = [
     "1",
   ]
-
   os_profile {
     admin_username = "cloudadmin"
     computer_name  = "vm-mikrotik"
@@ -75,29 +54,29 @@ resource "azurerm_virtual_machine" "vm_mikrotik" {
   }
 
   storage_os_disk {
-    name                      = "disk-os-vm-mikrotik-chr"
+    name                      = var.storage_os_disk_name
     caching                   = "ReadWrite"
     create_option             = "FromImage"
     disk_size_gb              = 10
-    managed_disk_type         = "StandardSSD_LRS"
+    managed_disk_type         = var.storage_os_disk_managed_disk_type
     os_type                   = "Linux"
     write_accelerator_enabled = false
   }
 }
 
 resource "azurerm_route_table" "rt_mikrotik" {
-  name                          = "rt-chr-${var.project}-${var.environment}-${var.az_region}"
+  name                          = var.azurerm_route_table_name
   location                      = var.location
   resource_group_name           = var.resource_group
-  disable_bgp_route_propagation = false
-
+  #BGP route propagation is turned ON 
+  #disable_bgp_route_propagation = false
+  bgp_route_propagation_enabled = true
   route {
-    name                   = "to_VMWare_Lab"
+    name                   = "to_onpremises_lab"
     address_prefix         = "172.22.22.0/24"
-    next_hop_in_ip_address = "172.17.1.6"
+    next_hop_in_ip_address = "172.30.1.4"
     next_hop_type          = "VirtualAppliance"
   }
-
 }
 
 resource "azurerm_subnet_route_table_association" "rt_ass_mikrotik" {

@@ -1,62 +1,37 @@
-# ---
-# RG DEPLOYMENT
-# ---
-module "rg" {
-  source   = "./modules/rg"
-  rg_name  = "rg-${var.project}-${var.environment}-${var.az_region}"
-  location = var.location
+# get parameters from deploy-params.json
+locals {
+  params = jsondecode(file("${path.module}/deploy-params.json"))
 }
 
-# ---
-# VNET DEPLOYMENT
-# ---
 module "vnet_hub" {
   source         = "./modules/vnet"
-  vnet_name      = "vnet-hub-${var.az_region}"
-  vnet_location  = var.location
-  resource_group = module.rg.resource_group_name
-  address_space  = ["172.17.0.0/16"]
+  vnet_name      = local.params.vnet_name
+  vnet_location  = local.params.location
+  resource_group = local.params.resource_group
+  address_space  = ["172.30.0.0/16"] # TODO: not yet in parameters
 }
 
-# ---
-# SUBNET DEPLOYMENT
-# ---
-module "subnet_example" {
+module "subnet_chr" {
   source               = "./modules/subnet"
-  subnet_name          = "snet-chr-${var.az_region}"
-  resource_group       = module.rg.resource_group_name
+  subnet_name          = local.params.subnet_name
+  resource_group       = local.params.resource_group
   virtual_network_name = module.vnet_hub.vnet_name
-  subnet_prefixes      = ["172.17.1.0/24"]
+  subnet_prefixes      = ["172.30.1.0/24"] # TODO: not yet in parameters
 }
 
-# ---
-# Mikrotik
-# ---
 module "vm_mikrotik" {
   source         = "./modules/mikrotik"
-  resource_group = module.rg.resource_group_name
-  location       = var.location
-  project        = var.project
-  environment    = var.environment
-  az_region      = var.az_region
-  az_subnet_id   = module.subnet_example.subnet_id
+  az_subnet_id   = module.subnet_chr.subnet_id
+
+  resource_group = local.params.resource_group
+  location       = local.params.location
+  azurerm_image_name = local.params.azurerm_image_name
+  azurerm_network_interface_name = local.params.azurerm_network_interface_name
+  ip_configuration_name = local.params.ip_configuration_name
+  azurerm_virtual_machine_name = local.params.azurerm_virtual_machine_name
+  azurerm_virtual_machine_vm_size = local.params.azurerm_virtual_machine_vm_size
+  storage_os_disk_name = local.params.storage_os_disk_name
+  storage_os_disk_managed_disk_type = local.params.storage_os_disk_managed_disk_type
+  azurerm_route_table_name = local.params.azurerm_route_table_name
+  
 }
-
-resource "azurerm_image" "example" {
-  hyper_v_generation  = "V2"
-  location            = "westeurope"
-  name                = "test-mikrotik"
-  resource_group_name = "rg-dms-poc-westeu"
-  tags                = {}
-  zone_resilient      = false
-
-  os_disk {
-    blob_uri = "https://***mikrotik-image.vhd"
-    caching  = "ReadWrite"
-    os_state = "Generalized"
-    os_type  = "Linux"
-    size_gb  = 1
-  }
-}
-
-

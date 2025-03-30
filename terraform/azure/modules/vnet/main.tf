@@ -6,11 +6,12 @@ resource "azurerm_virtual_network" "vnet_example" {
   dns_servers         = var.dns_servers
 
   dynamic "subnet" {
-    for_each = var.subnet
+    for_each = { for s in var.subnet : s.name => s }
     content {
-      name           = subnet.value["name"]
-      address_prefix = subnet.value["address_prefix"]
-      security_group = subnet.value["security_group"]
+      name           = subnet.value.name
+      address_prefixes = [
+        subnet.value.address_prefix
+      ]
     }
   }
 }
