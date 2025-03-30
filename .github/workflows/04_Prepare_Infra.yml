@@ -62,24 +62,6 @@ jobs:
               --overwrite && break || sleep 30
           done
 
-      - name: Create Terraform Service Principal
-        id: create_sp
-        run: |
-          APP=$(az ad sp create-for-rbac \
-            --name $SP_NAME \
-            --role Contributor \
-            --scopes /subscriptions/$(az account show --query id -o tsv)/resourceGroups/$RESOURCE_GROUP \
-            --sdk-auth || az ad sp list --display-name $SP_NAME --query "[0]" -o json)
-
-          echo "$APP" > sp.json
-          echo "SP_JSON=$APP" >> $GITHUB_ENV
-
-      - name: Save SP credentials to GitHub Secret
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo '${{ env.SP_JSON }}' | gh secret set AZURE_CREDENTIALS --repo $GITHUB_REPOSITORY
-
       - name: Generate Terraform backend config
         run: |
           cat <<EOF > terraform/backend.tf
@@ -93,3 +75,4 @@ jobs:
           }
           EOF
           cat terraform/backend.tf
+
