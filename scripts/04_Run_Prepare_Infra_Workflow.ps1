@@ -9,7 +9,7 @@ Write-Host "-----------------------------------"
 Write-Host "1. Open your browser and go to:"
 Write-Host "   https://github.com/$repo/actions"
 Write-Host ""
-Write-Host "2. Click on 'Prepare Azure Infra for CHR Deployment'"
+Write-Host "2. Click on '04 Prepare Azure Infra for CHR Deployment (04_Prepare_Infra.yml)'"
 Write-Host "3. Hit the 'Run workflow' button"
 Write-Host ""
 
