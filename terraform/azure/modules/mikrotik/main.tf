@@ -7,7 +7,7 @@ resource "azurerm_image" "image_mikrotik" {
   zone_resilient      = false
 
   os_disk {
-    storage_type  = "Standard_LRS"
+    #storage_type  =  "Standard_LRS"
     blob_uri      = "https://mikrotikchrstorage01.blob.core.windows.net/vhds/chr-7.18.2.vhd"
     caching       = "ReadWrite"
     os_state      = "Generalized"
@@ -70,7 +70,7 @@ resource "azurerm_route_table" "rt_mikrotik" {
   resource_group_name           = var.resource_group
   #BGP route propagation is turned ON 
   #disable_bgp_route_propagation = false
-  bgp_route_propagation_enabled = true
+  #bgp_route_propagation_enabled = true
   route {
     name                   = "to_onpremises_lab"
     address_prefix         = "172.22.22.0/24"
