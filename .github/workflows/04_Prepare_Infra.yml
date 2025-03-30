@@ -1,5 +1,3 @@
-# File: .github/workflows/prepare-infra.yml
-
 name: Prepare Azure Infra for CHR Deployment
 
 on:
@@ -16,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Load parameters
+      - name: Load deployment parameters
         id: params
         run: |
           PARAMS=$(cat deploy-params.json)
@@ -33,16 +31,12 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS_ADMIN }}
 
-      - name: Create Resource Group
-        run: |
-          az group create --name $RESOURCE_GROUP --location $LOCATION
-
       - name: Create Storage Account and Blob Container
         run: |
           az storage account create --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --location $LOCATION --sku Standard_LRS
           az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT
 
-      - name: Unzip CHR image
+      - name: Unzip CHR Image
         run: unzip $IMAGE_FILE -d prep-chr-image
 
       - name: Upload VHD to Azure Blob
@@ -55,13 +49,13 @@ jobs:
             --auth-mode login \
             --overwrite
 
-      - name: Create Terraform SP and store secret
+      - name: Create Terraform Service Principal
         id: create_sp
         run: |
           APP=$(az ad sp create-for-rbac \
             --name $SP_NAME \
             --role Contributor \
-            --scopes "/subscriptions/$(az account show --query id -o tsv)/resourceGroups/$RESOURCE_GROUP" \
+            --scopes /subscriptions/$(az account show --query id -o tsv)/resourceGroups/$RESOURCE_GROUP \
             --sdk-auth)
 
           echo "$APP" > sp.json
