@@ -60,15 +60,18 @@ jobs:
           echo "Waiting 30 seconds to ensure role assignments propagate..."
           sleep 30
 
-      - name: Upload VHD to Azure Blob
+      - name: Retryable Upload VHD to Azure Blob
         run: |
-          az storage blob upload \
-            --account-name $STORAGE_ACCOUNT \
-            --container-name $CONTAINER_NAME \
-            --name $VHD_NAME \
-            --file prep-chr-image/$VHD_NAME \
-            --auth-mode login \
-            --overwrite
+          for i in {1..5}; do
+            echo "Attempt $i to upload VHD..."
+            az storage blob upload \
+              --account-name $STORAGE_ACCOUNT \
+              --container-name $CONTAINER_NAME \
+              --name $VHD_NAME \
+              --file prep-chr-image/$VHD_NAME \
+              --auth-mode login \
+              --overwrite && break || sleep 30
+          done
 
       - name: Create Terraform Service Principal
         id: create_sp
@@ -101,4 +104,3 @@ jobs:
           }
           EOF
           cat terraform/backend.tf
-          
