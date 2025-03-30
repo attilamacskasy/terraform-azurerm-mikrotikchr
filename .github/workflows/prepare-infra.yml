@@ -1,3 +1,5 @@
+# File: .github/workflows/prepare-infra.yml
+
 name: Prepare Azure Infra for CHR Deployment
 
 on:
@@ -14,68 +16,64 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Login to Azure (admin)
+      - name: Load parameters
+        id: params
+        run: |
+          PARAMS=$(cat deploy-params.json)
+          echo "LOCATION=$(echo $PARAMS | jq -r .location)" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP=$(echo $PARAMS | jq -r .resource_group)" >> $GITHUB_ENV
+          echo "STORAGE_ACCOUNT=$(echo $PARAMS | jq -r .storage_account)" >> $GITHUB_ENV
+          echo "CONTAINER_NAME=$(echo $PARAMS | jq -r .container_name)" >> $GITHUB_ENV
+          echo "SP_NAME=$(echo $PARAMS | jq -r .sp_name)" >> $GITHUB_ENV
+          echo "IMAGE_FILE=$(echo $PARAMS | jq -r .image_file)" >> $GITHUB_ENV
+          echo "VHD_NAME=$(echo $PARAMS | jq -r .vhd_name)" >> $GITHUB_ENV
+
+      - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS_ADMIN }}
-
-      - name: Set variables
-        id: vars
-        run: |
-          echo "RESOURCE_GROUP=chr-deploy-rg" >> $GITHUB_ENV
-          echo "STORAGE_ACCOUNT=chrdeploy$(date +%s | tail -c 6)" >> $GITHUB_ENV
-          echo "CONTAINER_NAME=vhds" >> $GITHUB_ENV
-          echo "SP_NAME=sp-terraform-chr" >> $GITHUB_ENV
-          echo "LOCATION=westeurope" >> $GITHUB_ENV
 
       - name: Create Resource Group
         run: |
           az group create --name $RESOURCE_GROUP --location $LOCATION
 
-      - name: Create Storage Account + Container
+      - name: Create Storage Account and Blob Container
         run: |
-          az storage account create \
-            --name $STORAGE_ACCOUNT \
-            --resource-group $RESOURCE_GROUP \
-            --location $LOCATION \
-            --sku Standard_LRS
+          az storage account create --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --location $LOCATION --sku Standard_LRS
+          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT
 
-          az storage container create \
-            --name $CONTAINER_NAME \
-            --account-name $STORAGE_ACCOUNT
+      - name: Unzip CHR image
+        run: unzip $IMAGE_FILE -d prep-chr-image
 
-      - name: Unzip CHR Image
-        run: unzip prep-chr-image/chr-7.18.2.vhd.zip -d prep-chr-image
-
-      - name: Upload CHR VHD to Blob
+      - name: Upload VHD to Azure Blob
         run: |
           az storage blob upload \
             --account-name $STORAGE_ACCOUNT \
             --container-name $CONTAINER_NAME \
-            --name chr-7.18.2.vhd \
-            --file prep-chr-image/chr-7.18.2.vhd \
+            --name $VHD_NAME \
+            --file prep-chr-image/$VHD_NAME \
             --auth-mode login \
             --overwrite
 
-      - name: Create Terraform Service Principal
+      - name: Create Terraform SP and store secret
         id: create_sp
         run: |
           APP=$(az ad sp create-for-rbac \
             --name $SP_NAME \
             --role Contributor \
-            --scopes /subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).subscriptionId }}/resourceGroups/$RESOURCE_GROUP \
+            --scopes "/subscriptions/$(az account show --query id -o tsv)/resourceGroups/$RESOURCE_GROUP" \
             --sdk-auth)
 
           echo "$APP" > sp.json
           echo "SP_JSON=$APP" >> $GITHUB_ENV
 
-      - name: Save SP credentials to GitHub Secrets
+      - name: Save SP credentials to GitHub Secret
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo '${{ env.SP_JSON }}' | gh secret set AZURE_CREDENTIALS --repo $GITHUB_REPOSITORY
 
-      - name: Output Terraform backend config
+      - name: Generate Terraform backend config
         run: |
           cat <<EOF > terraform/backend.tf
           terraform {

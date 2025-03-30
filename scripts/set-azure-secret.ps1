@@ -1,18 +1,23 @@
-# set-azure-secret.ps1
+# File: scripts/set-azure-secret.ps1
 
 param (
     [string]$Repo = "attilamacskasy/terraform-azurerm-mikrotikchr",
     [string]$SecretName = "AZURE_CREDENTIALS_ADMIN"
 )
 
-# Optional: Create a new SP (or paste your own credentials here)
-$sp = az ad sp create-for-rbac --name "gh-actions-admin" --role "Contributor" --sdk-auth | ConvertFrom-Json
+$Params = Get-Content "../deploy-params.json" | ConvertFrom-Json
 
-# Output the SP JSON
+# Create Service Principal (or you can paste existing credentials here)
+$sp = az ad sp create-for-rbac `
+  --name $Params.sp_name `
+  --role Contributor `
+  --scopes "/subscriptions/$(az account show --query id -o tsv)/resourceGroups/$($Params.resource_group)" `
+  --sdk-auth | ConvertFrom-Json
+
 $spJson = $sp | ConvertTo-Json -Compress
 
-# Set the secret using GitHub CLI
+# Set GitHub Secret
 $env:GH_TOKEN = gh auth status --show-token | Select-String 'Token: (\w+)' | ForEach-Object { $_.Matches[0].Groups[1].Value }
-Write-Output $spJson | gh secret set $SecretName --repo $Repo
+echo $spJson | gh secret set $SecretName --repo $Repo
 
-Write-Host "Secret '$SecretName' has been set for $Repo"
+Write-Host "Secret '$SecretName' set for $Repo"

@@ -1,0 +1,10 @@
+{
+    "location": "westeurope",
+    "resource_group": "rg-hub-net-shared-001",
+    "storage_account": "terraform-azurerm-mikrotikchr",
+    "container_name": "vhds",
+    "sp_name": "sp-terraform-chr",
+    "image_file": "prep-chr-image/chr-7.18.2.vhd.zip",
+    "vhd_name": "chr-7.18.2.vhd"
+  }
+  
