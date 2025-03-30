@@ -1,0 +1,12 @@
+[2025-03-30 10:36:37] === MikroTik Cloud Hosted Router (CHR) VHDX Download and Conversion Script Started ===
+[2025-03-30 10:36:37] Starting: Downloading Cloud Hosted Router (CHR) VHDX ZIP with BITS
+[2025-03-30 10:36:49] Finished: Downloading Cloud Hosted Router (CHR) VHDX ZIP with BITS in 11.2575485 seconds.
+
+[2025-03-30 10:36:49] Starting: Unzipping Cloud Hosted Router (CHR) VHDX File
+[2025-03-30 10:36:49] Finished: Unzipping Cloud Hosted Router (CHR) VHDX File in 0.2617712 seconds.
+
+[2025-03-30 10:36:49] Starting: Converting Cloud Hosted Router (CHR) VHDX to VHD
+[2025-03-30 10:36:50] Finished: Converting Cloud Hosted Router (CHR) VHDX to VHD in 1.1734992 seconds.
+
+[2025-03-30 10:36:50] === Script Completed in 12.7657264 seconds ===
+[2025-03-30 10:36:50] Converted file path: C:\Users\administrator.CLOUDMIGRATION\Desktop\chr\chr-7.18.2.vhd
