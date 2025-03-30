@@ -19,10 +19,27 @@ jobs:
         run: |
           jq -r 'to_entries[] | "\(.key)=\(.value)"' deploy-params.json >> $GITHUB_ENV
 
+      - name: Output all deployment parameters from ENV
+        run: |
+          echo "Loaded deployment environment variables:"
+          env | grep -E '^(LOCATION|RESOURCE_GROUP|STORAGE_ACCOUNT|CONTAINER_NAME|VHD_NAME|SP_NAME|PROJECT|ENVIRONMENT|AZ_REGION|CONTAINER_NAME_TF|VNET_NAME|SUBNET_NAME|AZURERM_IMAGE_NAME|AZURERM_NIC_NAME|IP_CONFIGURATION_NAME|AZURERM_VM_NAME|STORAGE_OS_DISK_NAME|STORAGE_OS_DISK_TYPE|AZURERM_ROUTE_TABLE_NAME|AZURERM_VM_SIZE|MIKROTIK_IP|MIKROTIK_USER|MIKROTIK_PASSWORD|INTERFACE_NAME|ADDRESS_LIST_NAME|ADDRESS_LIST_ADDRESS)='
+
       - name: Authenticate with Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS_ADMIN }}
+
+      - name: Grant SP access to register resource providers
+        run: |
+          SP_APP_ID=$(az ad sp list --display-name "$SP_NAME" --query "[0].appId" -o tsv)
+          SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+          echo "Granting 'Resource Policy Contributor' role to SP $SP_APP_ID on subscription $SUBSCRIPTION_ID..."
+
+          az role assignment create \
+            --assignee "$SP_APP_ID" \
+            --role "Resource Policy Contributor" \
+            --scope "/subscriptions/$SUBSCRIPTION_ID" || echo "Role may already be assigned or not necessary. Continuing..."
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
