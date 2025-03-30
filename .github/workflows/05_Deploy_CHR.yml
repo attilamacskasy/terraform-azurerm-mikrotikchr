@@ -19,6 +19,11 @@ jobs:
         run: |
           jq -r 'to_entries[] | "\(.key)=\(.value)"' deploy-params.json >> $GITHUB_ENV
 
+      - name: Output all deployment parameters from ENV
+        run: |
+          echo "Loaded deployment environment variables:"
+          env | grep -E '^(LOCATION|RESOURCE_GROUP|STORAGE_ACCOUNT|CONTAINER_NAME|VHD_NAME|SP_NAME|PROJECT|ENVIRONMENT|AZ_REGION|CONTAINER_NAME_TF)='
+
       - name: Authenticate with Azure
         uses: azure/login@v1
         with:
@@ -30,10 +35,13 @@ jobs:
           terraform_version: 1.7.2
 
       - name: Terraform Init
-        run: terraform -chdir=terraform init
+        working-directory: terraform
+        run: terraform init
 
       - name: Terraform Plan
-        run: terraform -chdir=terraform plan
+        working-directory: terraform
+        run: terraform plan
 
       - name: Terraform Apply
-        run: terraform -chdir=terraform apply -auto-approve
+        working-directory: terraform
+        run: terraform apply -auto-approve
