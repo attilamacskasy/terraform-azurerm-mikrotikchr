@@ -5,16 +5,12 @@ terraform {
       version = "~> 3.80.0"
     }
   }
-
-  # backend is auto generated in .github\workflows\04_Prepare_Infra.yml 
-  /*
   backend "azurerm" {
-    resource_group_name  = "rg-mikrotik-chr"
+    resource_group_name  = "rg-hub-net-shared-001"
     storage_account_name = "mikrotikchrstorage01"
     container_name       = "terraform"
     key                  = "terraform.tfstate"
   }
-  */
 }
 
 provider "azurerm" {
