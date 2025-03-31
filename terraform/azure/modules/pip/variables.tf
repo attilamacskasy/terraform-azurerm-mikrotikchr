@@ -24,3 +24,9 @@ variable "sku" {
   description = "SKU for the public IP (Basic or Standard)"
   default     = "Basic"
 }
+
+variable "zones" { # Add this variable
+  type        = list(string)
+  description = "Specifies the Availability Zone to place the Public IP in."
+  default     = []
+}

@@ -26,6 +26,7 @@ module "public_ip" {
   resource_group_name = local.params.resource_group
   allocation_method   = "Dynamic" # or Static
   sku                 = "Basic" # or Standard
+  zones               = ["1"] # Add this line
 }
 
 module "nsg" {
