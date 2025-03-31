@@ -17,19 +17,24 @@
 /interface set ether1 name=ether1-wan1;
 /interface list member add list=WAN interface=ether1-wan1 comment="defconf";
 
-/ip address add address=${ether1_wan1_ip}/${subnet} interface=ether1-wan1 comment="defconf";
+# WAN static IP
+#/ip address add address=${ether1_wan1_ip}/${subnet} interface=ether1-wan1 comment="defconf";
 
-/ip dns {
-    set allow-remote-requests=yes;
-    static add name=router.lan address=${bridge_ip} comment=defconf;
-}
+# WAN DHCP - probably better in Azure
+/ip dhcp-client add interface=ether1-wan1 disabled=no comment="defconf";
 
-# DHCP settings
-/ip pool add name="default-dhcp" ranges=${dhcp_start}-${dhcp_end};
-/ip dhcp-server add name=defconf address-pool="default-dhcp" interface=bridge lease-time=10m disabled=no;
-/ip dhcp-server network add address=${dhcp_netaddr} gateway=${bridge_ip} dns-server=${bridge_ip} comment="defconf";
+# DNS static IP
+# /ip dns {
+#     set allow-remote-requests=yes;
+#     static add name=router.lan address=${ether1_wan1_ip} comment=defconf;
+# }
 
-/ip dhcp-client add interface=ether3-lan1 disabled=no comment="defconf";
+# DNS DHCP
+
+# DHCP settings - no DHCP in Azure
+#/ip pool add name="default-dhcp" ranges=${dhcp_start}-${dhcp_end};
+#/ip dhcp-server add name=defconf address-pool="default-dhcp" interface=ether1-wan1 lease-time=10m disabled=no;
+#/ip dhcp-server network add address=${dhcp_netaddr} gateway=${bridge_ip} dns-server=${bridge_ip} comment="defconf";
 
 # NAT
 /ip firewall nat add chain=srcnat out-interface-list=WAN ipsec-policy=out,none action=masquerade comment="defconf: masquerade";
@@ -49,7 +54,7 @@
     filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN comment="defconf: drop all from WAN not DSTNATed";
 }
 
-# Discovery and MAC access
-/ip neighbor discovery-settings set discover-interface-list=LAN;
-/tool mac-server set allowed-interface-list=LAN;
-/tool mac-server mac-winbox set allowed-interface-list=LAN;
+# Discovery and MAC access - not needed in Azure 
+#/ip neighbor discovery-settings set discover-interface-list=LAN;
+#/tool mac-server set allowed-interface-list=LAN;
+#/tool mac-server mac-winbox set allowed-interface-list=LAN;

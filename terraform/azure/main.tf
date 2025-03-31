@@ -35,3 +35,21 @@ module "vm_mikrotik" {
   azurerm_route_table_name = local.params.azurerm_route_table_name
   os_profile_admin_password = local.params.os_profile_admin_password
 }
+
+
+# feat: add self-hosted GitHub runner (gh_runner) via Terraform for secure CHR config
+# - Deploys lightweight VM inside same Azure VNet as MikroTik CHR
+# - Runner registers automatically using GitHub token
+# - Enables private, secure automation (no public IP needed)
+module "gh_runner" {
+  source              = "./modules/gh_runner"
+  resource_group      = local.params.resource_group
+  location            = local.params.location
+  subnet_id           = module.subnet_chr.subnet_id 
+  vm_name             = local.params.gh_runner_vm_name
+  vm_size             = local.params.gh_runner_vm_size
+  admin_username      = local.params.gh_runner_admin_user
+  admin_password      = local.params.gh_runner_admin_password
+  github_repo         = local.params.github_repo
+  github_runner_token = local.params.github_runner_token
+}

@@ -32,6 +32,13 @@
     "subnet": "24",
     "dhcp_start": "172.30.1.224",
     "dhcp_end": "172.30.1.250",
-    "dhcp_netaddr": "172.30.1.0/24"  
+    "dhcp_netaddr": "172.30.1.0/24",  
+
+    "gh_runner_vm_name": "vm-gh-runner",
+    "gh_runner_vm_size": "Standard_B2ats_v2",
+    "gh_runner_admin_user": "runneradmin",
+    "gh_runner_admin_password": "Lab@2025CHR!",
+    "github_repo": "attilamacskasy/terraform-azurerm-mikrotikchr",
+    "github_runner_token": "ghp_xxxxxx"
   }
   
