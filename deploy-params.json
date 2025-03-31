@@ -22,7 +22,7 @@
     "azurerm_virtual_machine_vm_size": "Standard_B2ats_v2",
     "mikrotik_ip": "192.168.88.1",
     "mikrotik_user": "admin",
-    "mikrotik_password": "Lab@2025CHR!",
+    "os_profile_admin_password": "Lab@2025CHR!",
     "interface_name": "ether1",
     "address_list_name": "my_address_list",
     "address_list_address": "10.0.0.1/24"

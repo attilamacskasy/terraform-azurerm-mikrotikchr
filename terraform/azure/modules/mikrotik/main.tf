@@ -38,13 +38,15 @@ resource "azurerm_virtual_machine" "vm_mikrotik" {
   network_interface_ids = [azurerm_network_interface.ip_mikrotik.id]
   resource_group_name   = var.resource_group
   vm_size               = var.azurerm_virtual_machine_vm_size
+  
   zones = [
     "1",
   ]
+
   os_profile {
     admin_username = "cloudadmin"
     computer_name  = "vm-mikrotik"
-    admin_password = "***"
+    admin_password = var.os_profile_admin_password
   }
 
   os_profile_linux_config {

@@ -33,5 +33,5 @@ module "vm_mikrotik" {
   storage_os_disk_name = local.params.storage_os_disk_name
   storage_os_disk_managed_disk_type = local.params.storage_os_disk_managed_disk_type
   azurerm_route_table_name = local.params.azurerm_route_table_name
-  
+  os_profile_admin_password = local.params.os_profile_admin_password
 }

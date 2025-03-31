@@ -52,3 +52,8 @@ variable "azurerm_route_table_name" {
   type        = string
   description = "Name of the route table"
 }
+
+variable "os_profile_admin_password" {
+  type        = string
+  description = "Admin password for CHR"
+}
