@@ -20,7 +20,3 @@ resource "azurerm_network_security_rule" "security_rule" {
   network_security_group_name = azurerm_network_security_group.nsg.name
   resource_group_name         = var.resource_group_name
 }
-
-output "nsg_id" {
-  value = azurerm_network_security_group.nsg.id
-}
