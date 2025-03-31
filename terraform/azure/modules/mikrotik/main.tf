@@ -7,9 +7,7 @@ resource "azurerm_image" "image_mikrotik" {
   zone_resilient      = false
 
   os_disk {
-    # storage_type is required for managed disks
-    storage_type  = "Standard_LRS"
-    
+    #storage_type  = "Standard_LRS" # REMOVE THIS LINE
     blob_uri      = "https://mikrotikchrstorage01.blob.core.windows.net/vhds/chr-7.18.2.vhd"
     caching       = "ReadWrite"
     os_state      = "Generalized"
@@ -26,7 +24,7 @@ resource "azurerm_network_interface" "ip_mikrotik" {
   ip_configuration {
     name                          = var.ip_configuration_name
     subnet_id                     = var.az_subnet_id
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Dynamic" # or Static
     public_ip_address_id          = var.public_ip_address_id
   }
 }
