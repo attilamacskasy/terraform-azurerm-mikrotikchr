@@ -9,7 +9,7 @@ terraform {
     resource_group_name  = "rg-hub-net-shared-001"
     storage_account_name = "mikrotikchrstorage01"
     container_name       = "terraform"
-    key                  = "terraform.tfstate"
+    key                  = "terraform-chr.tfstate"
   }
 }
 
