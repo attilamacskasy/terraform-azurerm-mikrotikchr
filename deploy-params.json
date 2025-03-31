@@ -28,10 +28,10 @@
     "address_list_address": "10.0.0.1/24",
 
     "router_name": "vm-mikrotik-chr",
-    "ether1-wan1-IP": "172.30.1.4",
+    "ether1_wan1_ip": "172.30.1.4",
     "subnet": "24",
     "dhcp_start": "172.30.1.224",
     "dhcp_end": "172.30.1.250",
-    "dhcp_netaddr": "172.30.1.0/24"
+    "dhcp_netaddr": "172.30.1.0/24"  
   }
   

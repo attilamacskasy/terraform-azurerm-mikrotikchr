@@ -17,7 +17,7 @@
 /interface set ether1 name=ether1-wan1;
 /interface list member add list=WAN interface=ether1-wan1 comment="defconf";
 
-/ip address add address=${bridge_ip}/${subnet} interface=ether1-wan1 comment="defconf";
+/ip address add address=${ether1_wan1_ip}/${subnet} interface=ether1-wan1 comment="defconf";
 
 /ip dns {
     set allow-remote-requests=yes;
