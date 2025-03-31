@@ -1,5 +1,6 @@
 resource "azurerm_image" "image_mikrotik" {
-  hyper_v_generation  = "V2"
+  #hyper_v_generation  = "V2"
+  hyper_v_generation  = "V1"
   name                = var.azurerm_image_name
   location            = var.location
   resource_group_name = var.resource_group
@@ -87,3 +88,14 @@ resource "azurerm_subnet_route_table_association" "rt_ass_mikrotik" {
   subnet_id      = var.az_subnet_id
   route_table_id = azurerm_route_table.rt_mikrotik.id
 }
+
+/*
+https://forum.mikrotik.com/viewtopic.php?t=153602
+In the OS disk section:
+Select Linux and the OS type.
+(os type linux)
+(vm generation 1) <== Let's try this (VM generation V2 fails to create Azure VM)
+I used the smallest size B1ls.
+Note: you will need to set the "enable ip forwarding" parameter in the resulting azure vm network interface. <== TODO: this is still missing from TF
+Note: the azure serial console feature works.
+*/
