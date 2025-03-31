@@ -19,7 +19,7 @@
     "storage_os_disk_name":         "vm-mikrotik-chr_disk1",
     "storage_os_disk_managed_disk_type":         "StandardSSD_LRS",
     "azurerm_route_table_name":         "rt-mikrotik-chr",
-    "azurerm_virtual_machine_vm_size": "Standard_B1s",
+    "azurerm_virtual_machine_vm_size": "Standard_B2ats_v2",
     "mikrotik_ip": "192.168.88.1",
     "mikrotik_user": "admin",
     "mikrotik_password": "your_password",
