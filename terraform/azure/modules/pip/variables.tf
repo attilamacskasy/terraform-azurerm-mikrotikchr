@@ -22,10 +22,10 @@ variable "allocation_method" {
 variable "sku" {
   type        = string
   description = "SKU for the public IP (Basic or Standard)"
-  default     = "Basic"
+  default     = "Standard" # Change this to Standard
 }
 
-variable "zones" { # Add this variable
+variable "zones" {
   type        = list(string)
   description = "Specifies the Availability Zone to place the Public IP in."
   default     = []

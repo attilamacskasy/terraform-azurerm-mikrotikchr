@@ -44,7 +44,8 @@
     "pipeline_runner_ip_cidr": "0.0.0.0/0",
     
     "public_ip_name": "pip-mikrotik-chr",
-    "nsg_name": "nsg-mikrotik-chr"
+    "nsg_name": "nsg-mikrotik-chr",
+    "public_ip_sku": "Standard"
     
   }
   

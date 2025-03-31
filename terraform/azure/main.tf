@@ -25,7 +25,7 @@ module "public_ip" {
   location            = local.params.location
   resource_group_name = local.params.resource_group
   allocation_method   = "Dynamic" # or Static
-  sku                 = "Basic" # or Standard
+  sku                 = "Standard" # Change this to Standard, Basic does not work
   zones               = ["1"] # Add this line
 }
 
