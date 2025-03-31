@@ -1,9 +1,11 @@
 name: 06 Prepare CHR Initial Config (06_Prepare_CHR_Config.yml)
 
-# Loads values from deploy-params.json
-# Replaces placeholders in your .rsc config template
-# Outputs the final static MikroTik configuration
-# Uploads the config as an artifact
+# Reads deploy-params.json
+# Replaces placeholders in routeros-7.18-base-template.rsc with actual values
+# (export values, and generate a valid MikroTik .rsc config file from your updated template using envsubst)
+
+# Outputs the final .rsc file into prep-chr-config/out/
+# Uploads the result as artifact so you can use it in follow-up workflows
 
 on:
   workflow_dispatch:
@@ -16,36 +18,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y gettext jq
+
       - name: Load deployment parameters and generate config
         run: |
           echo "Generating CHR config from template..."
 
-          # Load parameters
-          PARAMS=$(cat deploy-params.json)
-          ROUTER_NAME=$(echo "$PARAMS" | jq -r .router_name)
-          ETHER1-WAN1-IP=$(echo "$PARAMS" | jq -r .ether1-wan1-IP)
-          SUBNET=$(echo "$PARAMS" | jq -r .subnet)
-          DHCP_START=$(echo "$PARAMS" | jq -r .dhcp_start)
-          DHCP_END=$(echo "$PARAMS" | jq -r .dhcp_end)
-          DHCP_NETADDR=$(echo "$PARAMS" | jq -r .dhcp_netaddr)
+          # Export deploy-params.json as environment variables
+          export $(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]' deploy-params.json)
 
-          # Prepare config directory
+          # Ensure output folder exists
           mkdir -p prep-chr-config/out
 
-          # Replace placeholders in template and generate final config
-          cat prep-chr-config/routeros-7.18-base-template.rsc \
-            | sed "s/\$routerName/$ROUTER_NAME/g" \
-            | sed "s/\$ether1-wan1-IP/$ETHER1-WAN1-IP/g" \
-            | sed "s/\$subnet/$SUBNET/g" \
-            | sed "s/\$dhcpStart/$DHCP_START/g" \
-            | sed "s/\$dhcpEnd/$DHCP_END/g" \
-            | sed "s/\$dhcpNetAddr/$DHCP_NETADDR/g" \
-            > prep-chr-config/out/routeros-7.18-base.rsc
+          # Use envsubst to replace placeholders
+          envsubst < prep-chr-config/routeros-7.18-base-template.rsc > prep-chr-config/out/routeros-7.18-base-config.rsc
 
-          echo "CHR config generated at prep-chr-config/out/routeros-7.18-base.rsc"
+          echo "Generated config at: prep-chr-config/out/routeros-7.18-base-config.rsc"
 
       - name: Upload generated config as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: prep-chr-config
-          path: prep-chr-config/out/routeros-7.18-base.rsc
+          name: chr-routeros-config
+          path: prep-chr-config/out/routeros-7.18-base-config.rsc

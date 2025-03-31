@@ -3,37 +3,38 @@
 # GitHub Actions Workflow will prepare actual configuration based on this template.
 # The idea is to read parameters from deploy-params.json and replace placeholders in this template and prepare actual configuration and push to newly deployed CHR.
 
-# :global routerName nemver
-# :global ether1-wan1-IP 172.22.24.254
-# :global subnet 24
-# :global dhcpStart 172.22.24.224
-# :global dhcpEnd 172.22.24.250
-# :global dhcpNetAddr 172.22.24.0/24
+# proper ${placeholder} syntax that matches key names in deploy-params.json.
+# This format is compatible with envsubst, making it clean and easy to inject variables in GitHub Actions.
 
-/system identity set name=$routerName;
+# Identity
+/system identity set name=${router_name};
 
+# Interface lists
 /interface list add name=WAN comment="defconf";
 /interface list add name=LAN comment="defconf";
 
+# WAN setup
 /interface set ether1 name=ether1-wan1;
 /interface list member add list=WAN interface=ether1-wan1 comment="defconf";
 
-/ip address add address="$ether1-wan1-IP/$subnet" interface=ether1-wan1 comment="defconf";
+/ip address add address=${bridge_ip}/${subnet} interface=ether1-wan1 comment="defconf";
 
 /ip dns {
     set allow-remote-requests=yes;
-    static add name=router.lan address=$ether1-wan1-IP comment=defconf;
+    static add name=router.lan address=${bridge_ip} comment=defconf;
 }
 
-/ip pool add name="default-dhcp" ranges="$dhcpStart-$dhcpEnd";
-
+# DHCP settings
+/ip pool add name="default-dhcp" ranges=${dhcp_start}-${dhcp_end};
 /ip dhcp-server add name=defconf address-pool="default-dhcp" interface=bridge lease-time=10m disabled=no;
-/ip dhcp-server network add address=$dhcpNetAddr gateway=$ether1-wan1-IP dns-server=$ether1-wan1-IP comment="defconf";
+/ip dhcp-server network add address=${dhcp_netaddr} gateway=${bridge_ip} dns-server=${bridge_ip} comment="defconf";
 
 /ip dhcp-client add interface=ether3-lan1 disabled=no comment="defconf";
 
+# NAT
 /ip firewall nat add chain=srcnat out-interface-list=WAN ipsec-policy=out,none action=masquerade comment="defconf: masquerade";
 
+# Firewall rules
 /ip firewall {
     filter add chain=input action=accept connection-state=established,related,untracked comment="defconf: accept established, related, untracked";
     filter add chain=input action=drop connection-state=invalid comment="defconf: drop invalid";
@@ -48,7 +49,7 @@
     filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN comment="defconf: drop all from WAN not DSTNATed";
 }
 
+# Discovery and MAC access
 /ip neighbor discovery-settings set discover-interface-list=LAN;
 /tool mac-server set allowed-interface-list=LAN;
 /tool mac-server mac-winbox set allowed-interface-list=LAN;
-
