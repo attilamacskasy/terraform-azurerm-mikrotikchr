@@ -39,6 +39,12 @@
     "gh_runner_admin_user": "runneradmin",
     "gh_runner_admin_password": "Lab@2025CHR!",
     "github_repo": "attilamacskasy/terraform-azurerm-mikrotikchr",
-    "github_runner_token": "ghp_xxxxxx"
+    "github_runner_token": "ghp_xxxxxx",
+
+    "pipeline_runner_ip_cidr": "0.0.0.0/0",
+    
+    "public_ip_name": "pip-mikrotik-chr",
+    "nsg_name": "nsg-mikrotik-chr"
+    
   }
   

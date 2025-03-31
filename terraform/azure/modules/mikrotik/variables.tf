@@ -57,3 +57,13 @@ variable "os_profile_admin_password" {
   type        = string
   description = "Admin password for CHR"
 }
+
+variable "public_ip_address_id" {
+  type        = string
+  description = "ID of the public IP address"
+}
+
+variable "nsg_id" {
+  type        = string
+  description = "ID of the Network Security Group"
+}

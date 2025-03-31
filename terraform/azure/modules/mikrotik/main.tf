@@ -1,5 +1,4 @@
 resource "azurerm_image" "image_mikrotik" {
-  #hyper_v_generation  = "V2"
   hyper_v_generation  = "V1"
   name                = var.azurerm_image_name
   location            = var.location
@@ -8,7 +7,9 @@ resource "azurerm_image" "image_mikrotik" {
   zone_resilient      = false
 
   os_disk {
-    #storage_type  =  "Standard_LRS"
+    # storage_type is required for managed disks
+    storage_type  = "Standard_LRS"
+    
     blob_uri      = "https://mikrotikchrstorage01.blob.core.windows.net/vhds/chr-7.18.2.vhd"
     caching       = "ReadWrite"
     os_state      = "Generalized"
@@ -18,19 +19,21 @@ resource "azurerm_image" "image_mikrotik" {
 }
 
 resource "azurerm_network_interface" "ip_mikrotik" {
-  name                  = var.azurerm_network_interface_name
-  location              = var.location
-  resource_group_name   = var.resource_group
-  
-  #ip_forwarding_enabled - (Optional) Should IP Forwarding be enabled? Defaults to false.
-  #ip_forwarding_enabled = true
+  name                = var.azurerm_network_interface_name
+  location            = var.location
+  resource_group_name = var.resource_group
 
   ip_configuration {
     name                          = var.ip_configuration_name
     subnet_id                     = var.az_subnet_id
-    private_ip_address_allocation = "Dynamic" # or Static 
-
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = var.public_ip_address_id
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "nsg_association" {
+  network_interface_id      = azurerm_network_interface.ip_mikrotik.id
+  network_security_group_id = var.nsg_id
 }
 
 resource "azurerm_virtual_machine" "vm_mikrotik" {
@@ -39,7 +42,7 @@ resource "azurerm_virtual_machine" "vm_mikrotik" {
   network_interface_ids = [azurerm_network_interface.ip_mikrotik.id]
   resource_group_name   = var.resource_group
   vm_size               = var.azurerm_virtual_machine_vm_size
-  
+
   zones = [
     "1",
   ]
@@ -73,7 +76,6 @@ resource "azurerm_route_table" "rt_mikrotik" {
   name                          = var.azurerm_route_table_name
   location                      = var.location
   resource_group_name           = var.resource_group
-  #BGP route propagation is turned ON 
   #disable_bgp_route_propagation = false
   #bgp_route_propagation_enabled = true
   route {
@@ -88,14 +90,3 @@ resource "azurerm_subnet_route_table_association" "rt_ass_mikrotik" {
   subnet_id      = var.az_subnet_id
   route_table_id = azurerm_route_table.rt_mikrotik.id
 }
-
-/*
-https://forum.mikrotik.com/viewtopic.php?t=153602
-In the OS disk section:
-Select Linux and the OS type.
-(os type linux)
-(vm generation 1) <== Let's try this (VM generation V2 fails to create Azure VM)
-I used the smallest size B1ls.
-Note: you will need to set the "enable ip forwarding" parameter in the resulting azure vm network interface. <== TODO: this is still missing from TF
-Note: the azure serial console feature works.
-*/
