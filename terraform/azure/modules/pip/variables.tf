@@ -16,13 +16,13 @@ variable "resource_group_name" {
 variable "allocation_method" {
   type        = string
   description = "Allocation method for the public IP (Dynamic or Static)"
-  default     = "Dynamic"
+  default     = "Static" # Change this to Static
 }
 
 variable "sku" {
   type        = string
   description = "SKU for the public IP (Basic or Standard)"
-  default     = "Standard" # Change this to Standard
+  default     = "Standard"
 }
 
 variable "zones" {

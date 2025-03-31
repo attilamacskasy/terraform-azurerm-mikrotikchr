@@ -45,7 +45,9 @@
     
     "public_ip_name": "pip-mikrotik-chr",
     "nsg_name": "nsg-mikrotik-chr",
-    "public_ip_sku": "Standard"
+    "public_ip_sku": "Standard",
+    "public_ip_allocation_method": "Static"
+    
     
   }
   
