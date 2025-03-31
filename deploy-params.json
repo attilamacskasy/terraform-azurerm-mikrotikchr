@@ -20,11 +20,18 @@
     "storage_os_disk_managed_disk_type":         "StandardSSD_LRS",
     "azurerm_route_table_name":         "rt-mikrotik-chr",
     "azurerm_virtual_machine_vm_size": "Standard_B2ats_v2",
-    "mikrotik_ip": "192.168.88.1",
+    "mikrotik_ip": "172.30.1.4",
     "mikrotik_user": "admin",
     "os_profile_admin_password": "Lab@2025CHR!",
     "interface_name": "ether1",
     "address_list_name": "my_address_list",
-    "address_list_address": "10.0.0.1/24"
+    "address_list_address": "10.0.0.1/24",
+
+    "router_name": "vm-mikrotik-chr",
+    "ether1-wan1-IP": "172.30.1.4",
+    "subnet": "24",
+    "dhcp_start": "172.30.1.224",
+    "dhcp_end": "172.30.1.250",
+    "dhcp_netaddr": "172.30.1.0/24"
   }
   
