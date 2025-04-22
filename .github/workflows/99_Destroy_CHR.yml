@@ -1,0 +1,52 @@
+name: 99 Destroy CHR from Azure (99_Destroy_CHR.yml)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Load parameters from deploy-params.json
+        id: params
+        run: |
+          jq -r 'to_entries[] | "\(.key)=\(.value)"' deploy-params.json >> $GITHUB_ENV
+
+      - name: Authenticate with Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS_ADMIN }}
+
+      - name: Extract SP clientId from GitHub secret
+        run: echo "SP_APP_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_ADMIN }}' | jq -r .clientId)" >> $GITHUB_ENV
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.2
+
+      - name: Terraform Init
+        working-directory: terraform/azure
+        env:
+          ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).subscriptionId }}
+          ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).tenantId }}
+        run: terraform init
+
+      - name: Terraform Destroy
+        working-directory: terraform/azure
+        env:
+          ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).subscriptionId }}
+          ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS_ADMIN).tenantId }}
+        run: terraform destroy -auto-approve
