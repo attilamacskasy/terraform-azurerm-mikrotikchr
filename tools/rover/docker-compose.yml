@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  rover:
+    image: im2nguyen/rover:latest
+    container_name: rover-visualizer
+    volumes:
+      - /volume1/rover/plan.json:/src/plan.json # Mount Synology shared folder that has the plan.json file 
+    command: -planJSONPath=/src/plan.json # this is needed to start rover 
+    restart: unless-stopped
+    networks:
+      - macvlan-ovs_eth2 # ensure rover is on the right docker networks
+
+networks:
+  macvlan-ovs_eth2:
+    external: true
