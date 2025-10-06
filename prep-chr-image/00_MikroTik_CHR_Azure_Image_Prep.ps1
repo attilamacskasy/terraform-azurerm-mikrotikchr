@@ -7,11 +7,11 @@
 $ErrorActionPreference = "Stop"
 
 # Define URLs and paths
-$DownloadUrl = "https://download.mikrotik.com/routeros/7.18.2/chr-7.18.2.vhdx.zip"
-$FileName = "chr-7.18.2.vhdx.zip"
-$ExtractedFile = "chr-7.18.2.vhdx"
-$ConvertedFile = "chr-7.18.2.vhd"
-$CompressedFile = "chr-7.18.2.vhd.zip"
+$DownloadUrl = "https://download.mikrotik.com/routeros/7.20/chr-7.20.vhdx.zip"
+$FileName = "chr-7.20.vhdx.zip"
+$ExtractedFile = "chr-7.20.vhdx"
+$ConvertedFile = "chr-7.20.vhd"
+$CompressedFile = "chr-7.20.vhd.zip"
 $DownloadPath = "$PWD\$FileName"
 $ExtractPath = "$PWD"
 $LogTimestamp = Get-Date -Format "yyyyMMdd-HHmmss"
