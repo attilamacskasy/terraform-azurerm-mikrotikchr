@@ -23,13 +23,19 @@ jobs:
           echo "::add-mask::$ADMIN_PW"
           echo "admin_pw=$ADMIN_PW" >> $GITHUB_OUTPUT
 
-      - name: Create or update repository secret with admin password (best-effort)
-        uses: peter-evans/create-or-update-secret@v2
+      - name: Save admin password as repository secret (best-effort via gh)
         continue-on-error: true
-        with:
-          token: ${{ secrets.REPO_PAT }}
-          secret-name: OS_ADMIN_PASSWORD
-          secret-value: ${{ steps.genpw.outputs.admin_pw }}
+        env:
+          ADMIN_PW: ${{ steps.genpw.outputs.admin_pw }}
+          REPO_PAT: ${{ secrets.REPO_PAT }}
+        run: |
+          if [ -z "$REPO_PAT" ]; then
+            echo "REPO_PAT not set. Skipping repository secret creation for OS_ADMIN_PASSWORD."
+            exit 0
+          fi
+          echo "::add-mask::$REPO_PAT"
+          echo "$REPO_PAT" | gh auth login --with-token
+          gh secret set OS_ADMIN_PASSWORD --body "$ADMIN_PW" --repo "$GITHUB_REPOSITORY"
 
       - name: Load parameters from deploy-params.json (excluding sensitive keys)
         id: params
