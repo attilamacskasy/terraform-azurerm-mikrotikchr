@@ -1,5 +1,6 @@
 {
   
+    "subscriptionId":                         "",
     "location":                               "westeurope",
     "az_region":                              "westeu",
     "environment":                            "p",
@@ -22,7 +23,7 @@
     "storage_os_disk_managed_disk_type":      "StandardSSD_LRS",
     "azurerm_route_table_name":               "rt-mikrotik-chr",
     "azurerm_virtual_machine_vm_size":        "Standard_B2ats_v2",
-    "mikrotik_ip":                            "172.31.1.4",
+    "mikrotik_ip":                            "172.31.20.4",
     "mikrotik_user":                          "admin",
     "os_profile_admin_password":              "not_used_moved_as_secret",
     "interface_name":                         "ether1",
@@ -35,20 +36,11 @@
     "public_ip_allocation_method":            "Static",
 
     "router_name":                            "vm-mikrotik-chr",
-    "ether1_wan1_ip":                         "172.31.1.4",
+    "ether1_wan1_ip":                         "172.31.20.4",
     "subnet":                                 "24",
-    "dhcp_start":                             "172.31.1.224",
-    "dhcp_end":                               "172.31.1.250",
-    "dhcp_netaddr":                           "172.31.1.0/24",  
-
-    "gh_runner_vm_name":                      "vm-gh-runner",
-    "gh_runner_vm_size":                      "Standard_B2ats_v2",
-    "gh_runner_admin_user":                   "runneradmin",
-    "gh_runner_admin_password":               "not_used_moved_as_secret",
-    "github_repo":                            "attilamacskasy/terraform-azurerm-mikrotikchr",
-    "github_runner_token":                    "ghp_xxxxxx",
-    "pipeline_runner_ip_cidr":                "0.0.0.0/0"
-
+    "dhcp_start":                             "172.31.20.224",
+    "dhcp_end":                               "172.31.20.250",
+    "dhcp_netaddr":                           "172.31.20.0/24"  
 
   }
   

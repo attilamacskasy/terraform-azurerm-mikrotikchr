@@ -8,7 +8,7 @@ module "vnet_hub" {
   vnet_name      = local.params.vnet_name
   vnet_location  = local.params.location
   resource_group = local.params.resource_group
-  address_space  = ["172.30.0.0/16"] # TODO: not yet in parameters
+  address_space  = ["172.31.0.0/16"] # TODO: not yet in parameters
 }
 
 module "subnet_chr" {
@@ -16,7 +16,7 @@ module "subnet_chr" {
   subnet_name          = local.params.subnet_name
   resource_group       = local.params.resource_group
   virtual_network_name = module.vnet_hub.vnet_name
-  subnet_prefixes      = ["172.30.1.0/24"] # TODO: not yet in parameters
+  subnet_prefixes      = ["172.31.20.0/24"] # TODO: not yet in parameters
 }
 
 module "public_ip" {
@@ -57,28 +57,6 @@ module "nsg" {
       source_address_prefix      = "*"
       destination_address_prefix = "*"
     }
-    # {
-    #   name                       = "Allow_HTTP"
-    #   priority                   = 120
-    #   direction                  = "Inbound"
-    #   access                     = "Allow"
-    #   protocol                   = "Tcp"
-    #   source_port_range          = "*"
-    #   destination_port_range     = "80"
-    #   source_address_prefix      = "*"
-    #   destination_address_prefix = "*"
-    # },
-    # {
-    #   name                       = "Allow_HTTPS"
-    #   priority                   = 130
-    #   direction                  = "Inbound"
-    #   access                     = "Allow"
-    #   protocol                   = "Tcp"
-    #   source_port_range          = "*"
-    #   destination_port_range     = "443"
-    #   source_address_prefix      = "*"
-    #   destination_address_prefix = "*"
-    # }
   ]
 }
 
@@ -102,20 +80,3 @@ module "vm_mikrotik" {
   nsg_id = module.nsg.nsg_id
 
 }
-
-# feat: add self-hosted GitHub runner (gh_runner) via Terraform for secure CHR config
-# - Deploys lightweight VM inside same Azure VNet as MikroTik CHR
-# - Runner registers automatically using GitHub token
-# - Enables private, secure automation (no public IP needed)
-# module "gh_runner" {
-#   source              = "./modules/gh_runner"
-#   resource_group      = local.params.resource_group
-#   location            = local.params.location
-#   subnet_id           = module.subnet_chr.subnet_id
-#   vm_name             = local.params.gh_runner_vm_name
-#   vm_size             = local.params.gh_runner_vm_size
-#   admin_username      = local.params.gh_runner_admin_user
-#   admin_password      = local.params.gh_runner_admin_password
-#   github_repo         = local.params.github_repo
-#   github_runner_token = local.params.github_runner_token
-# }

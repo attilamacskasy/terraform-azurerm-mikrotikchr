@@ -53,8 +53,75 @@ $ServicePrincipalName = $Params.sp_name
 Write-Host "Logging in to Azure..."
 az login --only-show-errors | Out-Null
 
-# Get context
-$subscriptionId = az account show --query id -o tsv
+# Determine subscription to use.
+# If deploy-params.json contains subscription_id or subscriptionId then use it without prompting.
+# Otherwise prompt the user to interactively pick one of the subscriptions available to the signed-in account.
+$specifiedSub = $null
+if ($null -ne $Params.subscription_id -and $Params.subscription_id -ne "") {
+    $specifiedSub = $Params.subscription_id
+} elseif ($null -ne $Params.subscriptionId -and $Params.subscriptionId -ne "") {
+    $specifiedSub = $Params.subscriptionId
+}
+
+if ($specifiedSub) {
+    Write-Host "Using subscription from deploy-params.json: $specifiedSub"
+    try {
+        az account set --subscription $specifiedSub --only-show-errors | Out-Null
+    } catch {
+        Write-Error "Failed to set subscription to '$specifiedSub'. Ensure it is valid and you have access."
+        exit 1
+    }
+    $subscriptionId = $specifiedSub
+} else {
+    $allSubsJson = az account list --all -o json
+    try {
+        $allSubs = $allSubsJson | ConvertFrom-Json
+    } catch {
+        Write-Error "Failed to read subscriptions from Azure CLI."
+        exit 1
+    }
+
+    if (-not $allSubs -or $allSubs.Count -eq 0) {
+        Write-Error "No subscriptions found for the signed-in account."
+        exit 1
+    }
+
+    if ($allSubs.Count -eq 1) {
+        $subscriptionId = $allSubs[0].id
+        Write-Host "Only one subscription found. Using: $($allSubs[0].name) ($subscriptionId)"
+        az account set --subscription $subscriptionId --only-show-errors | Out-Null
+    } else {
+        Write-Host "Select an Azure subscription to use:"
+        for ($i = 0; $i -lt $allSubs.Count; $i++) {
+            $s = $allSubs[$i]
+            $idx = $i + 1
+            $isDefault = if ($s.isDefault) { "(Default)" } else { "" }
+            Write-Host "[$idx] $($s.name) - $($s.id) $isDefault"
+        }
+
+        do {
+            $choice = Read-Host "Enter the number of the subscription to use"
+            $valid = $false
+            if ($choice -match '^\d+$') {
+                $ci = [int]$choice
+                if ($ci -ge 1 -and $ci -le $allSubs.Count) { $valid = $true }
+            }
+            if (-not $valid) { Write-Host "Invalid selection, please try again." }
+        } while (-not $valid)
+
+        $selected = $allSubs[[int]$choice - 1]
+        $subscriptionId = $selected.id
+        try {
+            az account set --subscription $subscriptionId --only-show-errors | Out-Null
+        } catch {
+            Write-Error "Failed to set subscription $subscriptionId. Ensure you have access."
+            exit 1
+        }
+        Write-Host "Selected subscription: $($selected.name) ($subscriptionId)"
+    }
+}
+
+# Get tenantId and build scope
 $tenantId = az account show --query tenantId -o tsv
 $scope = "/subscriptions/$subscriptionId/resourceGroups/$ResourceGroup"
 

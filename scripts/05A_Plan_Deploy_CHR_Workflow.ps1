@@ -1,8 +1,8 @@
-$workflowFileName = "05_Deploy_CHR.yml"
+$workflowFileName = "05A_Plan_Deploy_CHR.yml"
 $repo = "attilamacskasy/terraform-azurerm-mikrotikchr"
 
 Write-Host ""
-Write-Host " Deploy CHR to Azure via GitHub Actions"
+Write-Host " Terraform Init and Plan CHR to Azure via GitHub Actions - Save TF Plan as Artifact"
 Write-Host "------------------------------------------"
 Write-Host "You can also run this manually at:"
 Write-Host "  https://github.com/$repo/actions"
