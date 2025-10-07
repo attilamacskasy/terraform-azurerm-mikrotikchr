@@ -6,7 +6,7 @@
     "project":                                "ois",
 
     "resource_group":                         "rg-hub-net-shared-001",
-    "storage_account":                        "mikrotikchrstorage01",
+    "storage_account":                        "mikrotikchrstorage001",
     "container_name":                         "vhds",
     "container_name_tf":                      "terraform",
     "sp_name":                                "sp-terraform-chr-1007",
@@ -49,6 +49,6 @@
     "github_runner_token":                    "ghp_xxxxxx",
     "pipeline_runner_ip_cidr":                "0.0.0.0/0"
 
-    
+
   }
   
