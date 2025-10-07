@@ -8,7 +8,7 @@ resource "azurerm_image" "image_mikrotik" {
 
   os_disk {
     #storage_type  = "Standard_LRS" # REMOVE THIS LINE
-    blob_uri      = "https://mikrotikchrstorage01.blob.core.windows.net/vhds/chr-7.18.2.vhd"
+    blob_uri      = "https://mikrotikchrstorage001.blob.core.windows.net/vhds/chr-7.20.vhd"
     caching       = "ReadWrite"
     os_state      = "Generalized"
     os_type       = "Linux"
@@ -78,8 +78,8 @@ resource "azurerm_route_table" "rt_mikrotik" {
   #bgp_route_propagation_enabled = true
   route {
     name                   = "to_onpremises_lab"
-    address_prefix         = "172.22.22.0/24"
-    next_hop_in_ip_address = "172.30.1.4"
+    address_prefix         = "172.22.20.0/24"
+    next_hop_in_ip_address = "172.31.20.4"
     next_hop_type          = "VirtualAppliance"
   }
 }
