@@ -9,7 +9,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      secrets: write
 
     steps:
       - name: Checkout repository
@@ -23,12 +22,19 @@ jobs:
           ADMIN_PW=$(jq -r .os_profile_admin_password deploy-params.json)
           echo "admin_pw=$ADMIN_PW" >> $GITHUB_OUTPUT
 
-      - name: Create or update repository secret with admin password
+      - name: Create or update repository secret with admin password (requires REPO_PAT)
+        if: ${{ secrets.REPO_PAT != '' }}
         uses: peter-evans/create-or-update-secret@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_PAT }}
           secret-name: OS_ADMIN_PASSWORD
           secret-value: ${{ steps.genpw.outputs.admin_pw }}
+
+      - name: Warn about missing REPO_PAT
+        if: ${{ secrets.REPO_PAT == '' }}
+        run: |
+          echo "Repository secret REPO_PAT is not set. Skipping automatic creation of OS_ADMIN_PASSWORD."
+          echo "The generated admin password is present in deploy-params.json on the runner."
 
       - name: Load parameters from deploy-params.json
         id: params
