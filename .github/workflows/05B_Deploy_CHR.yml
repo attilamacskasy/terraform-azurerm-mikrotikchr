@@ -9,10 +9,26 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      secrets: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Generate admin password and update deploy-params.json
+        id: genpw
+        shell: bash
+        run: |
+          pwsh -NoProfile -NonInteractive -File ./scripts/01_Generate_And_Set_AdminPassword.ps1 -ParamFilePath "$GITHUB_WORKSPACE/deploy-params.json" -Length 24
+          ADMIN_PW=$(jq -r .os_profile_admin_password deploy-params.json)
+          echo "admin_pw=$ADMIN_PW" >> $GITHUB_OUTPUT
+
+      - name: Create or update repository secret with admin password
+        uses: peter-evans/create-or-update-secret@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          secret-name: OS_ADMIN_PASSWORD
+          secret-value: ${{ steps.genpw.outputs.admin_pw }}
 
       - name: Load parameters from deploy-params.json
         id: params
